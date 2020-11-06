@@ -92,16 +92,16 @@ def create_app(test_config=None):
       questions = paginate_questions(request, all_questions)
       if len(questions) == 0:
         abort(404)
-    categories_id = {question.category for question in questions}
-    
-    return jsonify({
+      categories_id = {question.category for question in questions}
+      
+      return jsonify({
         'success':True,
-      'questions': [question.format() for question in questions],
-      'totalQuestions': total_questions,
-      'categories': list(categories_id),
-      'currentCategory': ''
-    })
-  
+        'questions': [question.format() for question in questions],
+        'totalQuestions': total_questions,
+        'categories': list(categories_id),
+        'currentCategory': ''
+      })
+
     except:
       abort(500)
 
