@@ -201,7 +201,17 @@ def create_app(test_config=None):
 
   @app.route('/questions/search', methods=['POST'])
   def search_questions():
-    search_term = 'autobiography'
+    try:
+      search_term = request.json.get('search_term')
+    
+    except:
+      print("in except", file = sys.stderr)
+      abort(400)
+    
+    if not (search_term):
+      print("in if", file = sys.stderr)
+      abort(422)
+    
     result_questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
     total_questions = len(result_questions)
     categories_id = {question.category for question in result_questions}
