@@ -238,10 +238,14 @@ def create_app(test_config=None):
   
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_questions_by_category(category_id):
-    questions = Question.query.filter_by(category=category_id).all()
-    total_questions = len(questions)
+    try:
+      questions = Question.query.filter_by(category=category_id).all()
+      total_questions = len(questions)
+    except:
+      abort(500)
     
     return jsonify({
+      'success':True,
       'questions': [question.format() for question in questions],
       'totalQuestions': total_questions,
       'currentCategory': category_id
