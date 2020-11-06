@@ -37,13 +37,11 @@ def create_app(test_config=None):
   
   @app.route('/categories', methods=['GET'])
   def get_categories():
+    categories = Category.query.order_by('type').all()
+
     return jsonify({
-      'categories': []
+      'categories': [category.format() for category in categories]
     })
-  
-
-
-
   
   '''
   @TODO: 
@@ -57,13 +55,17 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
-
+  
   @app.route('/questions', methods=['GET'])
   def get_questions():
+    questions = Question.query.all()
+    total_questions = len(questions)
+    categories_id = {question.category for question in questions}
+    
     return jsonify({
-      'questions': [],
-      'totalQuestions': 0,
-      'categories': [],
+      'questions': [question.format() for question in questions],
+      'totalQuestions': total_questions,
+      'categories': list(categories_id),
       'currentCategory': ''
     })
   
@@ -124,10 +126,15 @@ def create_app(test_config=None):
 
   @app.route('/questions/search', methods=['POST'])
   def search_questions():
+    search_term = 'autobiography'
+    result_questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
+    total_questions = len(result_questions)
+    categories_id = {question.category for question in result_questions}
+    
     return jsonify({
-      'questions': [],
+      'questions': [question.format() for question in result_questions],
       'totalQuestions': 0,
-      'categories': [],
+      'categories': list(categories_id),
       'currentCategory': ''
     })
 
@@ -146,10 +153,13 @@ def create_app(test_config=None):
   
   @app.route('/categories/<int:category_id>/questions', methods=['GET'])
   def get_questions_by_category(category_id):
+    questions = Question.query.filter_by(category=category_id).all()
+    total_questions = len(questions)
+    
     return jsonify({
-      'questions': [],
-      'totalQuestions': 0,
-      'currentCategory': ''
+      'questions': [question.format() for question in questions],
+      'totalQuestions': total_questions,
+      'currentCategory': category_id
     })
   
 
