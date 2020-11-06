@@ -6,7 +6,25 @@ import random
 
 from models import setup_db, Question, Category
 
+
+
+
+
+
 QUESTIONS_PER_PAGE = 10
+def paginate_questions(request, selection):
+  page = request.args.get('page', 1, type=int)
+  start =  (page - 1) * QUESTIONS_PER_PAGE
+  end = start + QUESTIONS_PER_PAGE
+
+  #questions = [question.format() for question in selection]
+  current_questions = selection[start:end]
+  
+  return current_questions
+
+
+
+
 
 def create_app(test_config=None):
   # create and configure the app
@@ -48,6 +66,10 @@ def create_app(test_config=None):
     except:
       abort(500)
   
+
+
+
+
   '''
   @TODO: 
   Create an endpoint to handle GET requests for questions, 
@@ -63,18 +85,25 @@ def create_app(test_config=None):
   
   @app.route('/questions', methods=['GET'])
   def get_questions():
-    questions = Question.query.all()
-    total_questions = len(questions)
+    try:
+      all_questions = Question.query.order_by(Question.id).all()
+      total_questions = len(all_questions)
+      
+      questions = paginate_questions(request, all_questions)
+      if len(questions) == 0:
+        abort(404)
     categories_id = {question.category for question in questions}
     
     return jsonify({
+        'success':True,
       'questions': [question.format() for question in questions],
       'totalQuestions': total_questions,
       'categories': list(categories_id),
       'currentCategory': ''
     })
   
-
+    except:
+      abort(500)
 
 
 
