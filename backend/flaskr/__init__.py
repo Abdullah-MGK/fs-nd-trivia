@@ -154,9 +154,33 @@ def create_app(test_config=None):
   '''
   
   @app.route('/questions', methods=['POST'])
-  def post_question():
+  def add_question():
+    #data = request.get_json() or None
+    #print(data, file = sys.stderr)
+    try:
+      question = request.json.get('question')
+      answer = request.json.get('answer')
+      category = request.json.get('category')
+      difficulty = request.json.get('difficulty')
+    
+    except:
+      print("in except", file = sys.stderr)
+      abort(400)
+
+    if not (question and answer and category and difficulty):
+      print("in if", file = sys.stderr)
+      abort(422)
+
+    try:
+      new_question = Question(question=question, answer=answer, difficulty=difficulty, category=category)
+      new_question.insert()
+    except:
+      db.session.rollback()
+      abort(500)
+    
     return jsonify({
-      'success':False
+      'success':True,
+      'question':new_question.format()
     })
 
 
