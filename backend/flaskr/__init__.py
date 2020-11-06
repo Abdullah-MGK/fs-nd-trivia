@@ -123,21 +123,18 @@ def create_app(test_config=None):
       
       if question is None:
         abort(404)
-        
-        try:
-          question.delete()
-          db.session.commit()
-          db.session.close()
-        except:
-          db.session.rollback()
-          db.session.close()
-          abort(500)
-        
-    return jsonify({
-      'success':False
+      try:
+        question.delete()
+        db.session.commit()
+        db.session.close()
+      except:
+        db.session.rollback()
+        db.session.close()
+        abort(500)
+      return jsonify({
+        'success':False,
         'deleted_question':question_id
-    })
-
+      })
     except:
       abort(422)
 
