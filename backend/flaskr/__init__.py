@@ -57,11 +57,9 @@ def create_app(test_config=None):
   @app.route('/categories', methods=['GET'])
   def get_categories():
     try:
-      categories = Category.query.order_by('type').all()
-
-      return jsonify({
-        'success':True,
-        'categories': [category.format() for category in categories]
+      categories = Category.query.order_by('type').all()  
+      return jsonify({'success':True,
+      'categories':{category.id:category.type for category in categories}
       })
     
     except:
