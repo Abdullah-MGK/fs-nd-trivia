@@ -266,11 +266,50 @@ def create_app(test_config=None):
   and shown whether they were correct or not. 
   '''
   
-  @app.route('/<int:category_id>/<int:previous_question>/question', methods=['POST'])
-  def get_next_question(category_id, previous_question):
+  @app.route('/quizzes', methods=['POST'])
+  def get_next_question():
+    try:
+      previous_questions_query = request.json.get('previous_questions')
+      previous_questions = [int(question) for question in previous_questions_query]
+      quiz_category_query = request.json.get('quiz_category')
+      quiz_category = quiz_category_query['id']
+    except:
+      abort(400)
+    
+    categories = Category.query.order_by(Category.type).all()
+    categories_id = [category.id for category in categories]
+    
+    if quiz_category == 0:
+      questions = Question.query.order_by(Question.id).all()
+    elif quiz_category not in categories_id:
+      questions = Question.query.filter_by(category=quiz_category).all()
+    else:
+      abort(404)
+    
+    try:
+      questions = [question.format() for question in questions]
+      random.shuffle(questions)
+      finished = False
+      for question in questions:
+        print(previous_questions, file = sys.stderr)
+        print(question, file = sys.stderr)
+        print(question['id'], file = sys.stderr)
+        if question['id'] not in previous_questions:
+          print("true", file = sys.stderr)
+          current_question = question
+          finished = True
+          break
+        else:
+          print("false", file = sys.stderr)
+      if not finished:
+        current_question = ""
+    
+    except:
+      abort(500)
+    
     return jsonify({
-      'question': '',
-      'answer': ''
+      'success':True,
+      'question':current_question
     })
 
 
