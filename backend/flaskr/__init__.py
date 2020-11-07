@@ -91,13 +91,14 @@ def create_app(test_config=None):
       questions = paginate_questions(request, all_questions)
       if len(questions) == 0:
         abort(404)
-      categories_id = {question.category for question in questions}
+      
+      categories = Category.query.order_by('type').all()
       
       return jsonify({
         'success':True,
         'questions': [question.format() for question in questions],
         'totalQuestions': total_questions,
-        'categories': list(categories_id),
+        'categories': {category.id:category.type for category in categories},
         'currentCategory': ''
       })
 
