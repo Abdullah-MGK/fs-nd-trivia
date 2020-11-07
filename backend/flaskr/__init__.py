@@ -239,14 +239,13 @@ def create_app(test_config=None):
   def get_questions_by_category(category_id):
     try:
       questions = Question.query.filter_by(category=category_id).all()
-      total_questions = len(questions)
     except:
       abort(500)
     
     return jsonify({
       'success':True,
       'questions': [question.format() for question in questions],
-      'totalQuestions': total_questions,
+      'totalQuestions': len(questions),
       'currentCategory': category_id
     })
   
