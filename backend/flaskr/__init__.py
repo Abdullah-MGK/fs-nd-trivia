@@ -107,23 +107,26 @@ def create_app(test_config=None):
   def delete_question(question_id):
     try:
       question = Question.query.get(question_id)
-      
-      if question is None:
-        abort(404)
-      try:
-        question.delete()
-        db.session.commit()
-        db.session.close()
-      except:
-        db.session.rollback()
-        db.session.close()
-        abort(500)
-      return jsonify({
-        'success':True,
-        'deleted_question':question_id
-      })
     except:
       abort(422)
+      
+    if question is None:
+      abort(404)
+
+    try:
+      question.delete()
+      db.session.commit()
+      db.session.close()
+    except:
+      db.session.rollback()
+      db.session.close()
+      abort(500)
+      
+    return jsonify({
+      'success':True,
+      'deleted_question':question_id
+    })
+    
   
   
   '''
