@@ -66,7 +66,7 @@ def create_app(test_config=None):
   including pagination (every 10 questions). 
   This endpoint should return a list of questions, 
   number of total questions, current category, categories. 
-
+  
   TEST: At this point, when you start the application
   you should see questions and categories generated,
   ten questions per page and pagination at the bottom of the screen for three pages.
@@ -78,21 +78,21 @@ def create_app(test_config=None):
     try:
       all_questions = Question.query.order_by(Question.id).all()
       questions = paginate_questions(request, all_questions)
-      if len(questions) == 0:
-        abort(404)
-      
-      categories = Category.query.order_by('type').all()
-      
-      return jsonify({
-        'success':True,
-        'questions': [question.format() for question in questions],
-        'totalQuestions': total_questions,
-        'categories': {category.id:category.type for category in categories},
-        'currentCategory': ''
-      })
+      categories = Category.query.order_by(Category.type).all()
     
     except:
       abort(500)
+    
+    if len(questions) == 0:
+      abort(404)
+    
+    return jsonify({
+      'success':True,
+      'questions': [question.format() for question in questions],
+      'totalQuestions': len(all_questions),
+      'categories': {category.id:category.type for category in categories},
+      'currentCategory': ''
+    })
   
   
   '''
@@ -150,11 +150,11 @@ def create_app(test_config=None):
     except:
       print("in except", file = sys.stderr)
       abort(400)
-
+    
     if not (question and answer and category and difficulty):
       print("in if", file = sys.stderr)
       abort(422)
-
+    
     try:
       new_question = Question(question=question, answer=answer, difficulty=difficulty, category=category)
       new_question.insert()
@@ -195,10 +195,18 @@ def create_app(test_config=None):
       print("in if", file = sys.stderr)
       abort(422)
     
-    result_questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
-    categories_id = {question.category for question in result_questions}
+    try:
+      result_questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).all()
+      categories_id = {question.category for question in result_questions}
+    
+    except:
+      abort(500)
+
+    if len(result_questions) == 0:
+      abort(404)
     
     return jsonify({
+      'success': True,
       'questions': [question.format() for question in result_questions],
       'totalQuestions': len(result_questions),
       'categories': list(categories_id),
@@ -221,6 +229,9 @@ def create_app(test_config=None):
       questions = Question.query.filter_by(category=category_id).all()
     except:
       abort(500)
+    
+    if len(questions) == 0:
+      abort(404)
     
     return jsonify({
       'success':True,
@@ -254,7 +265,8 @@ def create_app(test_config=None):
     
     categories = Category.query.order_by(Category.type).all()
     categories_id = [category.id for category in categories]
-    
+    print(quiz_category, file = sys.stderr)
+    print(categories_id, file = sys.stderr)
     if quiz_category == 0:
       questions = Question.query.order_by(Question.id).all()
     elif quiz_category not in categories_id:
@@ -308,7 +320,7 @@ def create_app(test_config=None):
     return jsonify({
       "success": False, 
       "error": 404,
-      "message": "Not found"
+      "message": "Not Found"
       }), 404
   
   @app.errorhandler(422)
