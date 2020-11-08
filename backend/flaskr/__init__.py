@@ -272,7 +272,7 @@ def create_app(test_config=None):
     print(categories_id, file = sys.stderr)
     if quiz_category == 0:
       questions = Question.query.order_by(Question.id).all()
-    elif quiz_category not in categories_id:
+    elif quiz_category in categories_id:
       questions = Question.query.filter_by(category=quiz_category).all()
     else:
       abort(404)
