@@ -27,8 +27,9 @@ database_path = "postgresql://{}/{}".format('localhost:5432', database_name)
 #### Frontend Setup
 1. Run `cd frontend`
 2. Run `npm install`, to install the required dependencies.
-3. Open your browser and type `http://localhost:3000`
-4. You made it! You should be able to use the application now.
+3. Run `npm start`
+4. Open your browser and type `http://localhost:3000`
+5. You made it! You should be able to use the application now.
 
 #### Testing Setup
 1. Run `cd backend`
