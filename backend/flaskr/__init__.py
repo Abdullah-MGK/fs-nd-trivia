@@ -105,6 +105,8 @@ def create_app(test_config=None):
   
   @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
+    print("DELETE QUESTION ID", file = sys.stderr)
+    print(question_id, file = sys.stderr)
     try:
       question = Question.query.get(question_id)
     except:
@@ -115,11 +117,11 @@ def create_app(test_config=None):
 
     try:
       question.delete()
-      db.session.commit()
-      db.session.close()
+      #db.session.commit()
+      #db.session.close()
     except:
       db.session.rollback()
-      db.session.close()
+      #db.session.close()
       abort(500)
       
     return jsonify({
@@ -154,18 +156,27 @@ def create_app(test_config=None):
       print("in except", file = sys.stderr)
       abort(400)
     
-    if not (question and answer and category and difficulty):
+    try:
+      categories = Category.query.order_by(Category.type).all()
+      categories_id = [category.id for category in categories]
+    except:
+      abort(500)
+    
+    if not (question and answer and category and difficulty) or (category not in categories_id):
       print("in if", file = sys.stderr)
       abort(422)
     
     try:
       new_question = Question(question=question, answer=answer, difficulty=difficulty, category=category)
       new_question.insert()
-      db.session.commit()
-      db.session.close()
+      print("NEW QUESTION ID", file = sys.stderr)
+      print(new_question.id, file = sys.stderr)
+      
+      #db.session.commit()
+      #db.session.close()
     except:
       db.session.rollback()
-      db.session.close()
+      #db.session.close()
       abort(500)
     
     return jsonify({
